@@ -25,4 +25,8 @@ Position Uncertainty             |  States | Inputs
 ![](figs/gp_position_uncertainties.png)  |  ![](figs/gp_model_states.png) | ![](figs/gp_inputs.png)
 
 2. Exact model: [CS_simple_car_exact.ipynb](CS_simple_car_exact.ipynb)
-
+<p float="left">
+  <img src="figs/exact_position_uncertainties.png" width="100" />
+  <img src="figs/exact_model_states.png" width="100" /> 
+  <img src="figs/exact_inputs" width="100" />
+</p>
