@@ -20,13 +20,15 @@ $ python -m ipykernel install --user --name=env
 ## Run Covariance Steering
 
 1. GP-based model: [CS_simple_car_GP.ipynb](CS_simple_car_GP.ipynb)
-Position Uncertainty             |  States | Inputs
-:-------------------------:|:-------------------------:|:-------------------------:
-![](figs/gp_position_uncertainties.png)  |  ![](figs/gp_model_states.png) | ![](figs/gp_inputs.png)
+<p float="left">
+  <img src="figs/gp_position_uncertainties.png" width="300" />
+  <img src="figs/gp_model_states.png" width="300" /> 
+  <img src="figs/gp_inputs.png" width="300" />
+</p>
 
 2. Exact model: [CS_simple_car_exact.ipynb](CS_simple_car_exact.ipynb)
 <p float="left">
-  <img src="figs/exact_position_uncertainties.png" width="100" />
-  <img src="figs/exact_model_states.png" width="100" /> 
-  <img src="figs/exact_inputs" width="100" />
+  <img src="figs/exact_position_uncertainties.png" width="300" />
+  <img src="figs/exact_model_states.png" width="300" /> 
+  <img src="figs/exact_inputs.png" width="300" />
 </p>
