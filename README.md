@@ -22,13 +22,13 @@ $ python -m ipykernel install --user --name=env
 1. GP-based model: [CS_simple_car_GP.ipynb](CS_simple_car_GP.ipynb)
 <p float="left">
   <img src="figs/gp_inputs.png" width="200" />
-  <img src="figs/gp_position_uncertainties.png" width="300" />
+  <img src="figs/gp_position_uncertainties.png" width="350" />
   <img src="figs/gp_model_states.png" width="200" /> 
 </p>
 
 2. Exact model: [CS_simple_car_exact.ipynb](CS_simple_car_exact.ipynb)
 <p float="left">
   <img src="figs/exact_inputs.png" width="200" />
-  <img src="figs/exact_position_uncertainties.png" width="300" />
+  <img src="figs/exact_position_uncertainties.png" width="350" />
   <img src="figs/exact_model_states.png" width="200" /> 
 </p>
