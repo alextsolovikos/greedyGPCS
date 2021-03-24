@@ -15,7 +15,7 @@ $ python -m ipykernel install --user --name=env
 ## Train Stochastic Variational Gaussian Process
 
 1. Generate some training data: [generate_data_simple_car.ipynb](generate_data_simple_car.ipynb)
-2. Run stochastic gradient descent on GPyTorch GP model: [train_gp_simple_car.ipynb](train_gp_simple_car.ipynb)
+2. Run stochastic gradient descent on GPyTorch-based GP model: [train_gp_simple_car.ipynb](train_gp_simple_car.ipynb)
 
 ## Run Covariance Steering
 
