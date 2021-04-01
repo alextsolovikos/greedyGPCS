@@ -15,13 +15,12 @@ class IndependentMultitaskGPModel(gpytorch.models.ApproximateGP):
         self.num_tasks = num_tasks
         self.num_inducing_pts = num_inducing_pts
         
-#         batch_shape = torch.Size([num_tasks])
-#         batch_shape = torch.Size([])
         if inducing_pts is None:
             inducing_points = torch.rand(num_tasks, num_inducing_pts, num_inputs)
         else:
             inducing_points = inducing_pts
-        variational_distribution = gpytorch.variational.NaturalVariationalDistribution(
+#       variational_distribution = gpytorch.variational.NaturalVariationalDistribution(
+        variational_distribution = gpytorch.variational.CholeskyVariationalDistribution(
             inducing_points.size(-2), batch_shape=torch.Size([num_tasks])
         )
         
