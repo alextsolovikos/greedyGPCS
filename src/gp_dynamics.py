@@ -19,7 +19,6 @@ class IndependentMultitaskGPModel(gpytorch.models.ApproximateGP):
             inducing_points = torch.rand(num_tasks, num_inducing_pts, num_inputs)
         else:
             inducing_points = inducing_pts
-#       variational_distribution = gpytorch.variational.NaturalVariationalDistribution(
         variational_distribution = gpytorch.variational.CholeskyVariationalDistribution(
             inducing_points.size(-2), batch_shape=torch.Size([num_tasks])
         )
@@ -70,36 +69,33 @@ class VariationalGPDynamics():
         self.loss_hist = []
         self.start_epoch = 0
     
-    def train(self, train_loader, num_epochs=10, lr=(0.01,0.01), verbose=True, plot_loss=False):
-        num_data = len(train_loader.dataset)
+    def train(self, train_loader, num_epochs=10, lr=0.01, verbose=True, plot_loss=False, num_batches=None):
         self.model.train()
         self.likelihood.train()
         
-        # Two optimizers: one for variational parameters and one for hyperparameters
-        variational_ngd_optimizer = gpytorch.optim.NGD(self.model.variational_parameters(), 
-                                                       num_data=num_data, lr=lr[0])
-
-        hyperparameter_optimizer = torch.optim.Adam([
-            {'params': self.model.hyperparameters()},
+        # Use Adam optimizer for stochastic gradient descent
+        optimizer = torch.optim.Adam([
+            {'params': self.model.parameters()},
             {'params': self.likelihood.parameters()},
-        ], lr=lr[1])
+        ], lr=lr)
         
-#         # Use Adam optimizer for stochastic gradient descent
-#         optimizer = torch.optim.Adam([
-#             {'params': self.model.parameters()},
-#             {'params': self.likelihood.parameters()},
-#         ], lr=lr)
-        
-        mll = gpytorch.mlls.VariationalELBO(self.likelihood, self.model, num_data=len(train_loader.dataset))
-#         mll = gpytorch.mlls.PredictiveLogLikelihood(self.likelihood, self.model, num_data=num_data, beta=0.5)
+#         mll = gpytorch.mlls.VariationalELBO(self.likelihood, self.model, num_data=len(train_loader.dataset))
+        mll = gpytorch.mlls.PredictiveLogLikelihood(self.likelihood, self.model, num_data=len(train_loader.dataset))
 
         if plot_loss:
             fig = plt.figure(figsize=(8,4), facecolor='white')
             fig.suptitle('Negative Log Likelihood', fontsize=12)
             ax = fig.add_subplot(111)
-            ax.plot(self.loss_hist)
-            display.display(fig)
-
+            if len(self.loss_hist) == 0:
+                ax.plot(self.loss_hist)
+#                 display.display(fig)
+        else:
+                ax.plot(self.loss_hist)
+#                 display.display(fig)
+        
+        if num_batches is None:
+            num_batches = len(train_loader)
+        assert num_batches <= len(train_loader)
         
         for epoch in range(self.start_epoch, num_epochs):
             logs = {}
@@ -107,33 +103,19 @@ class VariationalGPDynamics():
             total_loss = 0
             start_time = time.time()
             for i, data in enumerate(train_loader):
+                if i+1 > num_batches:
+                    break
                 x = data['x'].to(self.device)
                 u = data['u'].to(self.device)
                 dx = data['dx'].to(self.device)
                 
-                # Optimize variational parameters
-                variational_ngd_optimizer.zero_grad()
+                optimizer.zero_grad()
                 output = self.model(torch.cat((x, u), dim=-1))
                 loss = -mll(output, dx)
                 loss.backward()
-                variational_ngd_optimizer.step()
-                total_loss += loss/2
-                
-                # Optimize hyperparameters
-                hyperparameter_optimizer.zero_grad()
-                output = self.model(torch.cat((x, u), dim=-1))
-                loss = -mll(output, dx)
-                loss.backward()
-                hyperparameter_optimizer.step()
-
-                total_loss += loss/2
-#                 total_loss += loss/2.
-                
-#                 output = self.model(torch.cat((x, u), dim=-1))
-#                 loss = -mll(output, dx)
-#                 loss.backward()
-                
-#                 total_loss += loss/2.
+                optimizer.step()
+        
+                total_loss += loss
             
             total_loss /= len(train_loader)
             
@@ -145,15 +127,22 @@ class VariationalGPDynamics():
                 'loss_hist': self.loss_hist,
                 'model_state_dict': self.model.state_dict(),
                 'likelihood_state_dict': self.likelihood.state_dict(),
-#                 'variational_ngd_optimizer': variational_ngd_optimizer.state_dict(),
-#                 'hyperparameter_optimizer': hyperparameter_optimizer.state_dict(),
+                'optimizer': optimizer.state_dict(),
                 }, self.model_path)
             
             if plot_loss:
                 display.clear_output(wait=True)
                 ax.clear()
                 ax.plot(self.loss_hist)
+#                 line.set_xdata(range(len(self.loss_hist)))
+#                 line.set_ydata(self.loss_hist)
                 display.display(fig)
+#                 logs['log_loss'] = total_loss.item()
+#                 liveloss.update(logs)
+#                 liveloss.send()
+#                 ax.plot(self.loss_hist)
+
+#                 plt.show()
         
             print(f"Epoch: {epoch+1}/{num_epochs} | Loss: {total_loss} | Time: {time.time() - start_time}")
         
