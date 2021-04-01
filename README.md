@@ -19,7 +19,7 @@ $ python -m ipykernel install --user --name=env
 
 ## Run Covariance Steering
 
-### GP-based
+### SVGP Model
 
 Run the notebook: [CS_simple_car_GP.ipynb](CS_simple_car_GP.ipynb)
 <p float="left">
@@ -28,7 +28,7 @@ Run the notebook: [CS_simple_car_GP.ipynb](CS_simple_car_GP.ipynb)
   <img src="figs/gp_model_states.png" width="200" /> 
 </p>
 
-### Exact
+### Exact Model
 Run the notebook: [CS_simple_car_exact.ipynb](CS_simple_car_exact.ipynb)
 <p float="left">
   <img src="figs/exact_inputs.png" width="200" />
