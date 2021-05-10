@@ -4,7 +4,6 @@ import os
 import gpytorch
 from gpytorch.kernels import ScaleKernel, RBFKernel
 from gpytorch.means import ConstantMean
-# from livelossplot import PlotLosses
 import matplotlib.pyplot as plt
 from IPython import display
 
@@ -86,12 +85,7 @@ class VariationalGPDynamics():
             fig = plt.figure(figsize=(8,4), facecolor='white')
             fig.suptitle('Negative Log Likelihood', fontsize=12)
             ax = fig.add_subplot(111)
-            if len(self.loss_hist) == 0:
-                ax.plot(self.loss_hist)
-#                 display.display(fig)
-        else:
-                ax.plot(self.loss_hist)
-#                 display.display(fig)
+            ax.plot(self.loss_hist)
         
         if num_batches is None:
             num_batches = len(train_loader)
@@ -115,11 +109,11 @@ class VariationalGPDynamics():
                 loss.backward()
                 optimizer.step()
         
-                total_loss += loss
+                total_loss += loss.item()
             
             total_loss /= len(train_loader)
             
-            self.loss_hist.append(total_loss.item())
+            self.loss_hist.append(total_loss)
             self.start_epoch = epoch + 1
             
             torch.save({
@@ -134,15 +128,7 @@ class VariationalGPDynamics():
                 display.clear_output(wait=True)
                 ax.clear()
                 ax.plot(self.loss_hist)
-#                 line.set_xdata(range(len(self.loss_hist)))
-#                 line.set_ydata(self.loss_hist)
                 display.display(fig)
-#                 logs['log_loss'] = total_loss.item()
-#                 liveloss.update(logs)
-#                 liveloss.send()
-#                 ax.plot(self.loss_hist)
-
-#                 plt.show()
         
             print(f"Epoch: {epoch+1}/{num_epochs} | Loss: {total_loss} | Time: {time.time() - start_time}")
         
@@ -198,8 +184,7 @@ class VariationalGPDynamics():
         x = x.reshape(-1,self.nx).to(self.device)
         u = u.reshape(-1,self.nu).to(self.device)
         with torch.no_grad(), gpytorch.settings.fast_pred_var():
-            covariance_matrix = self.model(torch.cat((x, u), dim=-1)).covariance_matrix
-#           covariance_matrix = self.likelihood(self.model(torch.cat((x, u), dim=-1))).covariance_matrix
+            covariance_matrix = self.likelihood(self.model(torch.cat((x, u), dim=-1))).covariance_matrix
             
         if numpy:
             return covariance_matrix.cpu().numpy()
@@ -222,7 +207,6 @@ class VariationalGPDynamics():
         u = u.requires_grad_(True).to(self.device)
         A, B = torch.autograd.functional.jacobian(self.dx_with_grad, inputs=(x,u))
         A += torch.eye(self.nx).to(self.device)
-#         mean = self.likelihood(self.model(torch.cat((x, u), dim=-1))).mean
         d = - A.matmul(x) - B.matmul(u) + self.mean_step(x, u)
     
         if numpy:
