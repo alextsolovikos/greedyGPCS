@@ -266,7 +266,7 @@ def unscented_transform_with_feedback(mu, P, u, K, W, f, u_corr=None):
 
     # Mean and covariance
     mu_hat = (sigma_hat @ gamma).flatten()
-    P_hat = W
+    P_hat = W.copy()
     for i in range(2 * n + 1):
         P_hat += delta[i] * np.outer(sigma_hat[:,i] - mu_hat, sigma_hat[:,i] - mu_hat)
     
